@@ -31,5 +31,10 @@
 *.out
 *.app
 
-KoZuazua2021/build
-[Bb][Uu][Ii][Ll][Dd]/
+# Build folders
+build/
+
+# Cache/IDE folders
+.cache/
+.vscode/
+.idea/
