@@ -4,12 +4,17 @@
 
 float dist2(agent_vec vec1, agent_vec vec2)
 {
-    return std::sqrtf(std::powf(vec1.x - vec2.x, 2.f) + std::powf(vec1.y - vec2.y, 2.f));
+    return std::sqrt(std::pow(vec1.x - vec2.x, 2.f) + std::pow(vec1.y - vec2.y, 2.f));
 }
 
 float norm(agent_vec vec)
 {
-    return std::sqrtf(vec.x * vec.x + vec.y * vec.y);
+    return std::sqrt(vec.x * vec.x + vec.y * vec.y);
+}
+
+float dot(agent_vec vec1, agent_vec vec2)
+{
+    return vec1.x * vec2.x + vec1.y * vec2.y;
 }
 
 agent_vec operator-(agent_vec vec1, agent_vec vec2)

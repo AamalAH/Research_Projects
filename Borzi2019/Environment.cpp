@@ -25,7 +25,7 @@ void Environment::init_variables()
 {
     this->window = nullptr;
     this->num_agents = 75;
-    this->num_leaders = 1;
+    this->num_leaders = 3;
     this->time_interval = clock.restart();
     this->agent.setDt(time_interval.asSeconds());
 }
@@ -56,15 +56,12 @@ void Environment::init_agents()
 
         if ( c_leader < num_leaders ) { this->agent.setLeader(); c_leader++; }
         else { this->agent.setFollower(); }
-        // std::cout << this->agent.IsLeader();
 
-        // std::cout << c_leader << std::endl;
         this->agents.push_back(agent);
         // this->agentptrs.push_back(&(this->agents[cA]));
-        this->agentptrs.push_back(&agent);
+        // this->agentptrs.push_back(&agent);
     }
 
-    // std::cout << this->getAgentSize() << std::endl;
 }
 
 bool Environment::isRunning()
@@ -98,7 +95,7 @@ void Environment::update_agents()
 for ( auto &a : this->agents )
     {
         // Update position and velocity
-        a.update(this->agentptrs, this->window, this->num_leaders);
+        a.update(this->agents, this->window, this->num_leaders);
     }
 }
 

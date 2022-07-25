@@ -31,10 +31,10 @@ void Agent::initVariables()
 
     this->is_leader = false;
 
-    this->Ca0 = 10.f;
-    this->Cr0 = 25.f;
+    this->Ca0 = 0.f;
+    this->Cr0 = 75.f;
     this->lr0 = 1.f;
-    this->la0 = 50;
+    this->la0 = 50  ;
     this->gamma_1 = 10.f;
 
     this->Ca = 20.f;
@@ -45,6 +45,9 @@ void Agent::initVariables()
     this->gamma = 1.f;
     this->alpha = .07f;
     this->beta = .05f;
+
+    this->delta_1 = std::cos(1.047f);
+    this->delta_2 = std::cos(1.57f);
 }
 
 void Agent::setPos(agent_vec pos)
@@ -109,7 +112,7 @@ bool Agent::IsLeader()
     return this->is_leader;
 }
 
-void Agent::update(std::vector<Agent*>& others, sf::RenderTarget* target, int num_leaders)
+void Agent::update(std::vector<Agent>& others, sf::RenderTarget* target, int num_leaders)
 {
     this->updateVel(others, num_leaders);
     this->updateWindowCollisions(target);
@@ -130,15 +133,15 @@ void Agent::updatePos()
     this->pos = this->pos + this->vel;
 }
 
-void Agent::updateVel(std::vector<Agent*>& others, int num_leaders)
+void Agent::updateVel(std::vector<Agent>& others, int num_leaders)
 {
     this->getAcc(others, num_leaders);
     this->vel = this->vel + this->acc;
 }
 
-void Agent::getAcc(std::vector<Agent*>& others, int num_leaders)
+void Agent::getAcc(std::vector<Agent>& others, int num_leaders)
 {
-    float N = 0.;
+    int N = 0.;
     if ( this->is_leader )
         { N = others.size() - num_leaders; }
     else
@@ -146,43 +149,46 @@ void Agent::getAcc(std::vector<Agent*>& others, int num_leaders)
 
     agent_vec FB = {.0f, .0f};
     agent_vec F0 = {.0f, .0f};
-    // std::cout << F0.x << std::endl;
     agent_vec AB = {.0f, .0f};
     float r = .0f;
     float K = 0.f;
+    float z = 0.f;
+    float S = 0.f;
 
     // We want a leader to ignore all the other leaders. Therefore, for a leader we start from the first agent who is not a leader
     for ( auto &o : others)
     {   
         // If this is a leader, ignore all other leaders
-        if ( this->is_leader && o->is_leader ) { continue; }
-        r = dist2(this->pos, o->pos);
-        if ( !(this == o) )
+        if ( this->is_leader && o.IsLeader() ) { continue; }
+        r = dist2(this->pos, o.getPos());
+        if ( !(r == 0) )
         {
-            K = this->gamma / std::powf((1 + std::powf(r, 2.f)), this->sigma);
-            AB = AB + (this->vel - o->vel) * K;
+            z = dot((o.getPos() - this->pos) / norm(o.getPos() - this->pos), this->vel / norm(this->vel));
+
+            if ( z<=this->delta_2 ) S = 0;
+            else if ( z>=delta_1 ) S = 1;
+            else S = 0.5f - 0.5f * std::tanh((1 / (z - this->delta_2)) + (1 / (z - this->delta_1))); 
+            K = this->gamma / std::pow((1 + std::pow(r, 2.f)), this->sigma) * S;
+            // AB = AB + (o.getVel() - this->vel) * K;
             // If other is a leader then use the leader parameters
-            if ( o->is_leader )
+            if ( o.IsLeader() )
             {
-                F0 = F0 + ((this->pos-o->pos)/r) * ((this->Ca0/this->la0) * std::expf(-r / this->la0) - (this->Cr0/this->lr0) * std::expf(-r / this->lr0)) * this->gamma_1;
+                F0 = F0 + ((this->pos-o.getPos())/r) * ((this->Ca0/this->la0) * std::exp(-r / this->la0) - (this->Cr0/this->lr0) * std::exp(-r / this->lr0)) * this->gamma_1;
             }
             else
             {
-                FB = FB + ((this->pos-o->pos)/r) * ((this->Ca/this->la) * std::expf(-r / this->la) - (this->Cr/this->lr) * std::expf(-r / this->lr));
+                FB = FB + ((this->pos-o.getPos())/r) * ((this->Ca/this->la) * std::exp(-r / this->la) - (this->Cr/this->lr) * std::exp(-r / this->lr));
             }
         }
+        
     }
+    
+    FB = (FB * -1.f) / static_cast<float>((N));
+    AB = AB / static_cast<float>((N));
+    if ( !(num_leaders == 0) )
+    F0 = (F0 * -1.f) / static_cast<float>(num_leaders);
 
-    FB = (FB * -1.f) / N;
-    AB = AB / N;
-    if ( !(num_leaders == 0) ) 
-        F0 = (F0 * -1.f) / static_cast<float>(num_leaders);
-
-    // std::cout << F0.x << std::endl;
-
-    this->acc = (this->vel * (this->alpha - this->beta * std::powf(norm(this->vel), 2.f))) + FB + F0 + AB;
-
-    // std::cout << "F0 = " << F0.x << "FB = " << FB.x << "AB = " << AB.x << ", acc = " << this->acc.x << ".\n";
+    this->acc = (this->vel * (this->alpha - this->beta * std::pow(norm(this->vel), 2.f))) + FB + F0 + AB;
 }
 
 // void Agent::updateInterAgentCollision(std::vector<Agent*>& others)

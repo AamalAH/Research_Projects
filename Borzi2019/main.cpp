@@ -17,7 +17,6 @@ int main(){
 
     // Initialise Sim Environment
     Environment sim;
-    // std::cout << sim.getAgentSize() << std::endl;
 
     while (sim.isRunning())
     {
@@ -26,6 +25,7 @@ int main(){
         sim.render();
         
     }
+
     return 0;
     
 }

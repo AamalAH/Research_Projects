@@ -37,11 +37,11 @@ class Agent
         int       getInitVelMax();
         bool      IsLeader();
 
-        void update(std::vector<Agent*>& others, sf::RenderTarget* target, int num_leaders);
+        void update(std::vector<Agent>& others, sf::RenderTarget* target, int num_leaders);
         void updatePos();
         void updateBoid();
-        void updateVel(std::vector<Agent*>& others, int num_leaders);
-        void getAcc(std::vector<Agent*>& others, int num_leaders);
+        void updateVel(std::vector<Agent>& others, int num_leaders);
+        void getAcc(std::vector<Agent>& others, int num_leaders);
         void updateWindowCollisions(sf::RenderTarget* target);
 
         void renderAgent(sf::RenderTarget* target);
@@ -69,6 +69,9 @@ class Agent
         float gamma;
         float alpha;
         float beta;
+
+        float delta_1;
+        float delta_2;
         
         bool is_leader;
 
