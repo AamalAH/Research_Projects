@@ -169,7 +169,7 @@ void Agent::getAcc(std::vector<Agent>& others, int num_leaders)
             else if ( z>=delta_1 ) S = 1;
             else S = 0.5f - 0.5f * std::tanh((1 / (z - this->delta_2)) + (1 / (z - this->delta_1))); 
             K = this->gamma / std::pow((1 + std::pow(r, 2.f)), this->sigma) * S;
-            // AB = AB + (o.getVel() - this->vel) * K;
+            AB = AB + (o.getVel() - this->vel) * K;
             // If other is a leader then use the leader parameters
             if ( o.IsLeader() )
             {

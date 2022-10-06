@@ -14,8 +14,8 @@ import numpy as np
 class Environment:
 
     def __init__(self):
-        self.WIDTH = 900
-        self.HEIGHT = 500
+        self.WIDTH = 1280
+        self.HEIGHT = 768
         self.FPS = 60
         self.WIN = pygame.display.set_mode([self.WIDTH, self.HEIGHT])
         pygame.display.set_caption("Borzi - 2019")
@@ -23,7 +23,7 @@ class Environment:
         self.is_running = True
         self.screen_color = (0, 0, 0)  # BLACK
 
-        self.num_agents = 10
+        self.num_agents = 25
         self.num_leaders = 2
         self.agents = [Agent((np.random.randint(0, self.WIDTH),
                               np.random.randint(0, self.HEIGHT)), leader=True) for cA in range(self.num_leaders)]\
